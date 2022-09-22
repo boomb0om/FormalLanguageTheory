@@ -1,0 +1,4 @@
+constructors = f(4),g(2),h(2),w(0),v(0)
+variables = a, b, c, d, e
+First term: f(a,g(b,c),b,w)
+Second term: f(g(h(v,e),b),a,h(v,d),d)

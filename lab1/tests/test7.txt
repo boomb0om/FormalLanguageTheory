@@ -1,0 +1,4 @@
+constructors = f(3),W(0), r(0)
+variables = x, a, b, y, z, Q, t, A, B,s,Z
+First term: f(f(y,x,r),f(f(x,W,y),f(s,s,r),Z),f(f(W,a,b),A,B))
+Second term: f(t,f(Q,t,t),f(Q,t,Q))
