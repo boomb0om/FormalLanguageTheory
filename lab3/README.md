@@ -7,7 +7,7 @@
 ```bash
 git clone https://github.com/boomb0om/FormalLanguageTheory
 cd FormalLanguageTheory/lab3
-pip install -r requirements
+pip install -r requirements.txt
 ```
 ### Запуск
 Запустить лабу на тесте (по-умолчанию используется алгоритм устранения левой рекурсии):
