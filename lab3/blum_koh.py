@@ -32,7 +32,7 @@ def blum_koh(cfg, debug):
 		cfg_new.rename_nonterminal(nterm, nterm_new)
 
 	if debug:
-		print("Грамматика перед раскрытием нетерминалов:")
+		print("Грамматика после Блюма-Коха и перед раскрытием нетерминалов:")
 		cfg_new.print(border_bottom=True)
 
 	nterms = list(cfg_new.nonterms)

@@ -51,40 +51,70 @@ if __name__ == "__main__":
 
 	if not args.blum_coh:
 		print("Привожу грамматику в ГНФ через удаление левой рекурсии...")
+
+		cfg.remove_start_nonterminal()
+		if debug:
+			print("Грамматика после удаления стартового нетерминала из правых частей:")
+			cfg.print(border_bottom=True)
+
 		cfg.remove_chain_rules()
 		if debug:
 			print("Грамматика после удаления цепных правил:")
 			cfg.print(border_bottom=True)
 
 		nterm2index = cfg.to_GNF(debug)
-		cfg.remove_unreachable_rules()
+
 		t_done = time.time()-t1
+		# я не включаю удаление дубликатов и недостижимых нетерминалов в подсчет времени
+		# так как грамматика уже находится в ГНФ и по-сути задача выполнена, а
+		# это просто упростит вид грамматики
+		cfg.remove_unreachable_rules()
+		if debug:
+			print("Удалены недостижимые правила")
+		cfg.remove_duplicated_rules()
+		if debug:
+			print("Удалены дублирующиеся правила")
 
 		print("Финальная грамматика в ГНФ (удалены недостижимые правила):")
 		cfg.print(border_bottom=True)
 		print("Грамматика в нормальной форме Грейбах?", cfg.is_in_weak_GNF())
 		print(f"Выполнено за {t_done} секунд")
 
-		nterms_ordered = [(k,v) for k,v in nterm2index.items()]
+		cfg.update_terms_and_nonterms()
+		nterms_ordered = [(k,v) for k,v in nterm2index.items() if k in cfg.nonterms]
 		nterms_ordered = sorted(nterms_ordered, key=lambda x: x[1])
 		print('Частичные порядок (нетерминал, индекс):')
 		print(nterms_ordered)
 	else:
 		print("Привожу грамматику в ГНФ с помощью алгоритма Блюма-Коха...")
-		cfg.remove_chain_rules()
-		if debug:
-			print("Грамматика после удаления цепных правил:")
-			cfg.print(border_bottom=True)
 
 		cfg.remove_epsilon()
 		if debug:
 			print("Грамматика после удаления эпсилон правил:")
 			cfg.print(border_bottom=True)
 
+		cfg.remove_chain_rules()
+		if debug:
+			print("Грамматика после удаления цепных правил:")
+			cfg.print(border_bottom=True)
+
 		# Блюм-Кох
 		cfg, automatons_data = blum_koh(cfg, debug)
-		cfg.remove_unreachable_rules()
+
+		cfg.remove_start_nonterminal()
+		if debug:
+			print("Стартовый нетерминал удален из правых частей")
+
 		t_done = time.time()-t1
+		# я не включаю удаление дубликатов и недостижимых нетерминалов в подсчет времени
+		# так как грамматика уже находится в ГНФ и по-сути задача выполнена, а
+		# это просто упростит вид грамматики
+		cfg.remove_unreachable_rules()
+		if debug:
+			print("Удалены недостижимые правила")
+		cfg.remove_duplicated_rules()
+		if debug:
+			print("Удалены дублирующиеся правила")
 		
 		print("Финальная грамматика в ГНФ (удалены недостижимые правила):")
 		cfg.print(border_bottom=True)

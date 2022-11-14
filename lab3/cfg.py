@@ -421,6 +421,72 @@ class CFG:
 		self.grammar.extend(other_cfg.grammar)
 		self.update_terms_and_nonterms()
 
+	def remove_duplicated_rules(self):
+		nonterm2rules = self.get_nonterm_to_rule()
+		nonterms2rulesset = {k: set() for k in nonterm2rules.keys()}
+
+		to_delete = []
+		for nonterm, rules in nonterm2rules.items():
+			rulesset = nonterms2rulesset[nonterm]
+			for rule_ind in rules:
+				rule_str = self.items_to_str(self.grammar[rule_ind]['right'])
+				if rule_str in rulesset:
+					to_delete.append(rule_ind)
+				else:
+					rulesset.add(rule_str)
+		self.remove_rules(to_delete)
+
+	# удаление стартового нетерминала из правых частей правил
+	def _find_and_transit_s_rules(self):
+		s_rules = []
+		rules_with_s = []
+		for c, rule in enumerate(self.grammar):
+			if rule['left'] == "S":
+				s_rules.append(c)
+			for item in rule['right']:
+				if item['type'] == Types.nonterminal and item['value'] == "S":
+					rules_with_s.append(c)
+					break
+
+		for rule_ind in rules_with_s:
+			rule = self.grammar[rule_ind]
+			for c, item in enumerate(rule['right']):
+				if item['type'] == Types.nonterminal and item['value'] == "S":
+					s_ind = c
+					break
+			left_items = rule['right'][:c]
+			right_items = rule['right'][c+1:]
+			for ind in s_rules:
+				s_rule = self.grammar[ind]['right'].copy()
+				new_rule = {
+					"left": rule["left"],
+					"right": left_items+s_rule+right_items
+				}
+				self.add_rule(new_rule)
+		self.remove_rules(rules_with_s)
+
+		return len(rules_with_s) > 0
+
+
+	def remove_start_nonterminal(self):
+		S_rules = self.get_nonterm_to_rule()["S"]
+		is_s_recursive = False
+		for rule_ind in S_rules:
+			for item in self.grammar[rule_ind]['right']:
+				if item['type'] == Types.nonterminal and item['value'] == "S":
+					is_s_recursive = True
+					break
+			if is_s_recursive:
+				break
+
+		if not is_s_recursive:
+			rules_to_remove = []
+			changed = True
+			while changed:
+				changed = self._find_and_transit_s_rules()
+		else:
+			pass
+
 	#
 	# remove chain rules
 	#
