@@ -19,8 +19,18 @@ def blum_koh(cfg, debug):
 	cfg_new = sententional_dfa.to_CFG()
 	nterms_to_rename = [("S", sententional_dfa.start_state)]
 	
-	for nterm in nterms_to_process:
-		sententional_dfa, _ = get_sentential_forms_automaton(cfg, nterm, prefix=nterm.lower())
+	nterms_queue = list(nterms_to_process)
+	while len(nterms_queue) > 0:
+		nterm = nterms_queue.pop()
+		sententional_dfa, new_nterms_to_process = get_sentential_forms_automaton(
+			cfg, nterm, prefix=nterm.lower()
+		)
+
+		for new_nterm in new_nterms_to_process:
+			if new_nterm not in nterms_to_process:
+				nterms_to_process.add(new_nterm)
+				nterms_queue.append(new_nterm)
+
 		sententional_dfa.reverse()
 		automatons_data.append((nterm, sententional_dfa))
 		sent_cfg_for_nterm = sententional_dfa.to_CFG()
