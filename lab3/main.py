@@ -57,11 +57,6 @@ if __name__ == "__main__":
 			print("Грамматика после удаления стартового нетерминала из правых частей:")
 			cfg.print(border_bottom=True)
 
-		cfg.remove_chain_rules()
-		if debug:
-			print("Грамматика после удаления цепных правил:")
-			cfg.print(border_bottom=True)
-
 		nterm2index = cfg.to_GNF(debug)
 
 		t_done = time.time()-t1

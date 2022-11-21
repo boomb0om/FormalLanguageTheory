@@ -379,6 +379,11 @@ class CFG:
 			print("Грамматика после удаления эпсилон правил:")
 			self.print(border_bottom=True)
 
+		self.remove_chain_rules()
+		if debug:
+			print("Грамматика после удаления цепных правил:")
+			self.print(border_bottom=True)
+
 		nterm2index = self.remove_left_recursion()
 		self.update_terms_and_nonterms()
 		if debug:
