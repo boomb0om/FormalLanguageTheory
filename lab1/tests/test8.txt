@@ -1,0 +1,4 @@
+constructors = f(2),g(3),h(1),A(0),B(0)
+variables = x,y,z,w,r,t,s,q,v,u
+First term: g(g(h(h(s)),h(x),x),g(x,x,x),g(h(y),A,x))
+Second term: g(g(y,s,v),g(g(q,q,q),v,g(t,w,t)),z)
