@@ -1,12 +1,12 @@
 import re
 
 class Parser:
-	# {"type": "var", name: "x"}
+	# {"type": "var", "name": "x"}
 	# {"type": "constr", "name": "f", args: [...]}
 
-	def __init__(self, var_names, constr_names):
+	def __init__(self, var_names, constructors):
 		self.var_names = var_names
-		self.constr_names = constr_names
+		self.constructors = constructors
 
 	def parse_term(self, s):
 		if self.is_var(s):
@@ -14,36 +14,69 @@ class Parser:
 		elif self.is_constr(s):
 			return self.parse_constr(s)
 		else:
-			raise ValueError(f"Unknown term: {s}")
+			print(f"Unknown term: {s}")
+			exit()
 
 	def is_var(self, s):
 		return re.fullmatch('[a-zA-Z]+', s) and s in self.var_names
 
 	def is_constr(self, s):
-		if re.fullmatch('[a-zA-Z]+', s) and s in self.constr_names:
+		if re.fullmatch('[a-zA-Z]+', s) and s in self.constructors:
 			# 0-местный конструктор
 			return True
-		elif re.fullmatch('[a-zA-Z]+\(.*\)', s) and s.split('(')[0] in self.constr_names:
+		elif re.fullmatch('[a-zA-Z]+\(.*\)', s) and s.split('(')[0] in self.constructors.keys():
 			num_brackets = 0
 			passed_first_bracket = False
 			first_bracket_index = 0
 			arg_ended = False
+			arg_num = self.constructors[s.split('(')[0]]
+			arg_count = 0
+			first_extra_bracket_index = -1
+			extra_bracket_state = False		# True значит есть лишние открывающие скобки помимо первой
+			last_symbol_is_constr = False
+			last_symbol = ""
 			for i in range(len(s)):
 				# check args correctness
+				if i != 0:
+					last_symbol = s[i - 1]
+					if s[i - 1] in self.constructors:
+						last_symbol_is_constr = True
+					else:
+						last_symbol_is_constr = False
+				if (s[i] in self.var_names or s[i] in self.constructors.keys()) and num_brackets == 1:
+					arg_count += 1
 				if passed_first_bracket and arg_ended:
 					arg_ended = False
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
-						raise ValueError("Bad constructor args")
+						print("Bad constructor args")
+						exit()
+
 				# check brackets
 				if s[i] == '(':
 					if not passed_first_bracket:
 						first_bracket_index = i
-					passed_first_bracket = True
+						passed_first_bracket = True
+					if not last_symbol_is_constr:
+						extra_bracket_state = True
+						print(f"Wrong parentheses structure in {s}: {s[i]} after {last_symbol} <not constructor> on index {i}")
+						exit()
 					num_brackets += 1
+					if num_brackets > 1:
+						if first_extra_bracket_index == -1:
+							first_extra_bracket_index = i
+
 				elif s[i] == ')':
 					num_brackets -= 1
 					if num_brackets == 1:
 						arg_ended = True
+						first_extra_bracket_index = -1
+					elif num_brackets == -1:
+						print(f"Unbalanced parentheses: {s[i]} index {i} in {s}")
+						exit()
+
+			if arg_count != arg_num:
+				print(f"Arg numbers don't match: {s} must have {arg_num} args but has {arg_count}")
+				exit()
 			if num_brackets == 0:
 				return True
 		return False
@@ -54,7 +87,7 @@ class Parser:
 	def parse_constr(self, s):
 		first_bracket_index = s.find('(')
 
-		if first_bracket_index == -1: 
+		if first_bracket_index == -1:
 			# 0-местный конструктор
 			parsed_constr = {"type": "constr", "name": s, "args": []}
 		else:

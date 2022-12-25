@@ -79,27 +79,52 @@ class MultiEquationSet:
 			right_part_vars.append(me.get_right_part_vars())
 
 		if last_step and len(multieqs_to_check) > 0:
-			raise Exception("Cant choose multiequation. Unification error")
+			print("Cant choose multiequation. Unification error")
+			print("Multiequation with more than 1 term in right part left")
+			exit()
 		if last_step:
 			multieqs_to_check = self.multiequations
 
 		# нет мультиуравнений у которых >= 2 термов справа
 		if len(multieqs_to_check) == 0:
 			return -1, None
-
-		for i in range(len(multieqs_to_check)):
-			is_ok = True
-			for me_right_vars in right_part_vars:
-				if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
-					is_ok = False
+		sussy = False
+		if not last_step:
+			for i in range(len(multieqs_to_check)):
+				is_ok = True
+				for me_right_vars in right_part_vars:
+					if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
+						failer = me_right_vars.intersection(multieqs_to_check[i].vars_set)
+						sus1 = multieqs_to_check[i]
+						for j in range(len(multieqs_to_check)):
+							if j != i and len(failer.intersection(multieqs_to_check[j].get_right_part_vars())) > 0:
+								sus2 = multieqs_to_check[j]
+								is_ok = False
+						break
+				if is_ok:
 					break
-			if is_ok:
-				break
+		else:
+			for i in range(len(multieqs_to_check)):
+				is_ok = True
+				for me_vars in multieqs_to_check[i].vars:
+					if len(set(me_vars).intersection(multieqs_to_check[i].get_right_part_vars())) > 0:
+						failer = set(me_vars).intersection(multieqs_to_check[i].get_right_part_vars())
+						sus1 = multieqs_to_check[i]
+						sussy = True
+						is_ok = False
+				if is_ok:
+					break
 
 		# нет мультиуравнения у которого ни одна переменная левой части 
 		# не встречается в правой части никакого уравнения вообще
 		if not is_ok:
-			raise Exception("Cant choose multiequation. Unification error")
+			print("Cant choose multiequation. Unification error")
+			print(f"Failed to unify: {failer} is in the right part of multiequations:")
+			if not sussy:
+				print(f"{sus1} and {sus2} don't unify")
+			else:
+				print(f"{sus1} contains cycle")
+			exit()
 
 		result_multieq = multieqs_to_check[i]
 		for i in range(len(self.multiequations)):

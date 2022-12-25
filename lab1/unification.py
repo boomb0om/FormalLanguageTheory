@@ -14,13 +14,15 @@ def find_common_part(trees):
 			first_constr_name = tree['name']
 			args_for_common_part = [[] for i in range(len(tree['args']))]
 		elif tree['type'] == 'constr' and not is_first and tree['name'] != first_constr_name:
-			raise Exception(
+			print(
 				f"Unification error: name of constr {tree['name']} != name of constr {first_constr_name}"
 			)
+			exit()
 		
 		if tree['type'] == 'constr':
 			if len(tree['args']) != len(args_for_common_part):
-				Exception(f"Unification error: args of {tree['name']} != args of {first_constr_name}")
+				print(f"Unification error: args of {tree['name']} != args of {first_constr_name}")
+				exit()
 			for i in range(len(tree['args'])):
 				args_for_common_part[i].append(tree['args'][i])
 
