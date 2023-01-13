@@ -10,6 +10,7 @@ class CFG:
 		#
 		self.update_terms_and_nonterms()
 
+
 	def fill_elements_from_rule(self, rule):
 		left = rule['left']
 		self.nonterms.add(left)
@@ -573,3 +574,8 @@ class CFG:
 			if not is_weak_GNF:
 				break
 		return is_weak_GNF
+
+
+	def check_grammar(self):
+		left_nterms = set([i['left'] for i in self.grammar])
+		assert left_nterms == self.nonterms, f"{self.nonterms.difference(left_nterms)} nonterminals dont have rules"

@@ -37,6 +37,7 @@ if __name__ == "__main__":
 	input_lines = read_grammar()
 	parser = Parser()
 	cfg = parser.parse_grammar(input_lines)
+	cfg.check_grammar()
 	print('Входная грамматика:')
 	cfg.print()
 	in_gnf = cfg.is_in_weak_GNF()
